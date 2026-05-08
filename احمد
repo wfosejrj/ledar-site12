@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>LEADER POS PRO MAX</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial;
+  background:#0d0d0d;
+  color:white;
+  text-align:center;
+}
+
+header{
+  background:#1c1c1c;
+  padding:10px;
+}
+
+input{
+  padding:10px;
+  margin:5px;
+  width:180px;
+  border:none;
+  border-radius:5px;
+}
+
+button{
+  padding:10px;
+  background:#00c853;
+  border:none;
+  color:white;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+table{
+  width:90%;
+  margin:auto;
+  border-collapse:collapse;
+  margin-top:10px;
+}
+
+th,td{
+  border:1px solid #333;
+  padding:10px;
+}
+
+#loginBox{
+  margin-top:120px;
+}
+
+.footer{
+  margin-top:20px;
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div id="loginBox">
+  <h2>تسجيل الدخول</h2>
+  <input id="user" placeholder="المستخدم">
+  <input id="pass" type="password" placeholder="كلمة المرور">
+  <button onclick="login()">دخول</button>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+
+<header>
+  <h2>LEADER POS PRO MAX</h2>
+  <button onclick="logout()">خروج</button>
+</header>
+
+<div>
+  <input id="barcode" placeholder="باركود / بحث">
+  <input id="name" placeholder="اسم المنتج">
+  <input id="price" type="number" placeholder="السعر">
+  <button onclick="add()">إضافة</button>
+</div>
+
+<table>
+<thead>
+<tr>
+<th>المنتج</th>
+<th>السعر</th>
+<th>حذف</th>
+</tr>
+</thead>
+<tbody id="list"></tbody>
+</table>
+
+<div class="footer">
+<h3>الإجمالي: <span id="total">0</span></h3>
+<h3>أرباح اليوم: <span id="profit">0</span></h3>
+
+<button onclick="printBill()">طباعة فاتورة</button>
+<button onclick="clearAll()">مسح الكل</button>
+</div>
+
+</div>
+
+<script>
+let products = JSON.parse(localStorage.getItem("p")) || [];
+let profit = parseFloat(localStorage.getItem("pr")) || 0;
+
+/* LOGIN */
+function login(){
+  let u = user.value;
+  let p = pass.value;
+
+  if(u=="admin" && p=="1234"){
+    loginBox.style.display="none";
+    app.style.display="block";
+  }else{
+    alert("خطأ في الدخول");
+  }
+}
+
+function logout(){
+  location.reload();
+}
+
+/* ADD */
+function add(){
+  let n = name.value;
+  let p = parseFloat(price.value);
+
+  if(!n || !p) return;
+
+  products.push({n,p});
+  profit += p * 0.2;
+
+  name.value="";
+  price.value="";
+
+  render();
+}
+
+/* REMOVE */
+function remove(i){
+  products.splice(i,1);
+  render();
+}
+
+/* CLEAR */
+function clearAll(){
+  products=[];
+  render();
+}
+
+/* PRINT */
+function printBill(){
+  window.print();
+}
+
+/* RENDER */
+function render(){
+  let list = document.getElementById("list");
+  list.innerHTML="";
+  let total=0;
+
+  products.forEach((x,i)=>{
+    total += x.p;
+
+    list.innerHTML += `
+      <tr>
+        <td>${x.n}</td>
+        <td>${x.p}</td>
+        <td><button onclick="remove(${i})">X</button></td>
+      </tr>
+    `;
+  });
+
+  totalEl.innerText = total;
+  profitEl.innerText = profit;
+
+  localStorage.setItem("p", JSON.stringify(products));
+  localStorage.setItem("pr", profit);
+}
+
+render();
+</script>
+
+</body>
+</htm
